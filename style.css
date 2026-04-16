@@ -432,7 +432,7 @@ body {
 
 /* ─── DRAW BUTTON ─────────────────────────────────────────────────── */
 #draw-btn {
-  position: fixed; bottom: 25px; right: 2.75rem;
+  position: fixed; bottom: 23px; right: 2.75rem;
   z-index: 999;
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
