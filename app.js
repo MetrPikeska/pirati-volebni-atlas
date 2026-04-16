@@ -90,9 +90,6 @@ function initMap() {
 
   S.tileL.dark = L.tileLayer(TILES.dark, { attribution: '© CARTO', subdomains: 'abcd', maxZoom: 19 });
   S.tileL.osm  = L.tileLayer(TILES.osm,  { attribution: '© OpenStreetMap', maxZoom: 19 });
-  S.tileL.aerial = L.tileLayer.wms(AERIAL_WMS, {
-    layers: 'GR_ORTFOTO', format: 'image/png', transparent: false, version: '1.3.0', attribution: '© ČÚZK',
-  });
 
   S.tileL.dark.addTo(S.map);
   S.map.on('click', () => { if (S.hlLayer) { S.map.removeLayer(S.hlLayer); S.hlLayer = null; } });
