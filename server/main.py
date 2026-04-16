@@ -1,20 +1,31 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from pydantic import BaseModel
 from typing import Any
 import psycopg
 import json
 import os
 
+limiter = Limiter(key_func=get_remote_address)
+
 app = FastAPI(title="Pirátský volební atlas API", version="1.0.0")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origins=[
+        "https://pirati-volebni-atlas.vercel.app",
+        "http://localhost:8080",
+        "http://localhost:3000",
+    ],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -60,7 +71,8 @@ STATS_QUERY = """
 
 
 @app.get("/api/geojson/{level}")
-async def get_geojson(level: str):
+@limiter.limit("30/minute")
+async def get_geojson(request: Request, level: str):
     if level not in TABLES:
         raise HTTPException(400, "Neznámá úroveň")
     table = TABLES[level]
@@ -75,7 +87,8 @@ async def get_geojson(level: str):
 
 
 @app.get("/api/units/{level}")
-async def get_units(level: str):
+@limiter.limit("60/minute")
+async def get_units(request: Request, level: str):
     if level not in TABLES:
         raise HTTPException(400, "Neznámá úroveň")
     table = TABLES[level]
@@ -88,7 +101,8 @@ async def get_units(level: str):
 
 
 @app.get("/api/stats/{level}/{id}")
-async def get_stats(level: str, id: int):
+@limiter.limit("120/minute")
+async def get_stats(request: Request, level: str, id: int):
     if level not in TABLES:
         raise HTTPException(400, "Neznámá úroveň")
     table = TABLES[level]
@@ -111,7 +125,8 @@ class CustomPolygon(BaseModel):
 
 
 @app.post("/api/stats/custom")
-async def stats_custom(body: CustomPolygon):
+@limiter.limit("10/minute")
+async def stats_custom(request: Request, body: CustomPolygon):
     geojson = json.dumps(body.geometry)
     with psycopg.connect(DB) as conn:
         cur = conn.execute(
