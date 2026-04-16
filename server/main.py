@@ -18,10 +18,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DB = os.getenv(
-    "DATABASE_URL",
-    "host=localhost dbname=volby2021 user=postgres password=master"
-)
+DB = os.environ["DATABASE_URL"]
 
 TABLES = {"obce": "obce_gwr", "orp": "orp", "okresy": "okresy", "kraje": "kraje"}
 
