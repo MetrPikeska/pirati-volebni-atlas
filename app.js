@@ -1,7 +1,7 @@
 'use strict';
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
-const API = 'https://shanghai-villages-doors-tucson.trycloudflare.com';
+const API = 'https://truly-frequently-dice-markets.trycloudflare.com';
 
 const LEVEL_LABEL = { obce: 'Obec', orp: 'ORP', okresy: 'Okres', kraje: 'Kraj', polygon: 'Vlastní polygon' };
 
